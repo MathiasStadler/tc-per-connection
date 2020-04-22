@@ -54,4 +54,12 @@ tc filter add dev $EXTDEV parent ffff: protocol ip \
         action mirred egress redirect dev ifb0 \
         flowid ffff:1
 
+# show tc
+tc qdisc show dev ifb0
+tc class show dev ifb0
+tc filter show dev ifb0
+iptables -t mangle -vnL INPUT
+iptables -t mangle -vnL OUTPUT
+
 exit 0
+
