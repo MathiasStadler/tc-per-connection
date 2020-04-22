@@ -62,6 +62,7 @@ EXTDEV=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
 echo "payload interface $EXTDEV"
 
 DOWNLINK=1024
+echo "Downlink rate to echo ${DOWNLINK}"
 
 # load kernel module
 modeprobe ifb
@@ -112,3 +113,11 @@ tc filter add dev $EXTDEV parent ffff: protocol ip \
 exit 0
 
 ```
+
+```bash
+# show tc
+tc qdisc show dev ifb0
+tc class show dev ifb0
+tc filter show dev ifb0
+iptables -t mangle -vnL INPUT
+iptables -t mangle -vnL OUTPUT
