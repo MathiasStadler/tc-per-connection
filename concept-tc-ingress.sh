@@ -5,7 +5,7 @@
 EXTDEV=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
 echo "payload interface $EXTDEV"
 
-DOWNLINK=1024
+DOWNLINK=512kbit
 echo "Downlink rate to echo ${DOWNLINK}"
 
 # load kernel module
@@ -30,9 +30,9 @@ ip link set dev ifb0 up
 
 # HTB classes on IFB with rate limiting
 tc qdisc add dev ifb0 root handle 3: htb default 30
-tc class add dev ifb0 parent 3: classid 3:3 htb rate ${DOWNLINK}kbit
-tc class add dev ifb0 parent 3:3 classid 3:30 htb rate 400kbit ceil ${DOWNLINK}kbit
-tc class add dev ifb0 parent 3:3 classid 3:33 htb rate 1400kbit ceil ${DOWNLINK}kbit
+tc class add dev ifb0 parent 3: classid 3:3 htb rate ${DOWNLINK}
+tc class add dev ifb0 parent 3:3 classid 3:30 htb rate 400kbit ceil ${DOWNLINK}
+tc class add dev ifb0 parent 3:3 classid 3:33 htb rate 1400kbit ceil ${DOWNLINK}
 
 
 # Packets marked with "3" on IFB flow through class 3:33
