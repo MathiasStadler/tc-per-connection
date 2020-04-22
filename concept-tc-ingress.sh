@@ -1,61 +1,5 @@
-# tc-per-connection
+#!/bin/bash
 
-## housekeeping
-
-```bash
-docker run -it -p 8080:8080 -v "/home/trapapa/playground/tc-per-connection:/home/coder/project" -u "$(id -u):$(id -g)" codercom/code-server:latest
-git config --global user.name "Mathias Stadler"
-git config --global user.EMAIL "email@mathias-stadler.de"
-# https://help.github.com/en/github/using-git/caching-your-github-password-in-git
-git config --global credential.helper 'cache --timeout=3600'
-```
-
-
-
-## source
-
-```txt
-https://wiki.archlinux.org/index.php/Advanced_traffic_control
-@TODO source missing
-```
-
-## test
-
-```bash
-# install
-# dnf install -y iperf3
-# apt-get install -y iperf3
-# pacman -S iperf3
-
-# another server start iperf3
-iperf -s
-
-
-# on test server
-# PLEASE AWARE: all iprules are overwriten/delete at this test
-# TEST NEVER IN PRODUCTION
-
-# enable tc
-sudo ./tc-per-connection-all-high-ports.sh enable
-# show tc
-sudo./tc-per-connection-all-high-ports.sh show
-
-# start test 
-iperf -c <ip_of_another_server>
-
-# start test with paralel stream e.g. 2
-iperf -P2 -c <ip_of_another_server>
-
-
-# disable tc
-tc-per-connection-all-high-ports.sh disable
-
-```
-
-
-## ingress tc manual
-
-```bash
 # as root
 # set EXTDEV
 EXTDEV=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
@@ -111,13 +55,3 @@ tc filter add dev $EXTDEV parent ffff: protocol ip \
         flowid ffff:1
 
 exit 0
-
-```
-
-```bash
-# show tc
-tc qdisc show dev ifb0
-tc class show dev ifb0
-tc filter show dev ifb0
-iptables -t mangle -vnL INPUT
-iptables -t mangle -vnL OUTPUT
