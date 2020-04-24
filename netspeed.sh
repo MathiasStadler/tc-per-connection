@@ -52,7 +52,8 @@ function ifaceExists {
 }
 function ifaceIsUp {
   # -n equals true if non-zero string length
-  if [[ -n `ifconfig | sed 's/[ \t].*//;/^\(lo\|\)$/d' | grep $IFACE` ]]
+  # if [[ -n `ifconfig | sed 's/[ \t].*//;/^\(lo\|\)$/d' | grep $IFACE` ]]
+  if [[ -n $(ip link |grep UP|grep $IFACE) ]]
   then
     return 0 # true
   else
