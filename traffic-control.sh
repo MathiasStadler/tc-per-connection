@@ -46,10 +46,6 @@ for i in $(seq 1 255); do
 	tc filter add dev $int1 protocol ip parent 1: prio 1 u32 match ip dst $lan1$i/32 flowid 1:1$i
 done
 
-
-
-
-
 ## Limit incomming traffic ( to localhost)
 # Clean interface
 tc qdisc del dev $int1 handle ffff: ingress
