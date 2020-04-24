@@ -49,13 +49,15 @@ if [ "$1" = "enable" ]; then
 
     echo "tc qdisc add dev $dev"
     tc qdisc add dev $dev root handle 1: htb
-    echo "t c qdisc add dev $tin1"
-    tc qdisc add dev $tin1 root handle 2: htb
+    ## echo "t c qdisc add dev $tin1"
+    ## tc qdisc add dev $tin1 root handle 2: htb
     # handle all traffic
     tc qdisc add dev $dev handle ffff: ingress
     # Redirecto ingress $dev to egress $tin1
     tc filter add dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
-
+    # tc qdisc add
+    echo "t c qdisc add dev $tin1"
+    tc qdisc add dev $tin1 root handle 2: htb
 
     echo "tc class add dev $dev"
     tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit ceil $rate_ceil
