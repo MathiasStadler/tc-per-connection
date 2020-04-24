@@ -58,8 +58,8 @@ if [ "$1" = "enable" ]; then
     # tc qdisc add
     echo "t c qdisc add dev $tin1"
     tc qdisc add dev $tin1 root handle 2: htb default 10
-    tc class add dev $tin1 parent 2: classid 2:1 htb rate 512kbit
-    tc class add dev $tin1 parent 2:1 classid 2:10 htb rate 512kbit
+    ## tc class add dev $tin1 parent 2: classid 2:1 htb rate 512kbit
+    ## tc class add dev $tin1 parent 2:1 classid 2:10 htb rate 512kbit
 
     echo "tc class add dev $dev"
     tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit ceil $rate_ceil
@@ -92,8 +92,8 @@ if [ "$1" = "enable" ]; then
     iptables -t mangle -A OUTPUT -j RETURN
     # ingress
     # iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
-    ## iptables -t mangle -A INPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
-    ## iptables -t mangle -A INPUT -j RETURN
+    iptables -t mangle -A PREROUTING -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
+    iptables -t mangle -A PREROUTING -j RETURN
 
 elif [ "$1" = "disable" ]; then
     echo "disabling rate limits"
