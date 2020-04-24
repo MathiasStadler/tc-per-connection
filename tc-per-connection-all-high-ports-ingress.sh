@@ -13,6 +13,9 @@ max_byte=50000
 # Interface virtual for incomming traffic
 tin1="ifb0"
 
+htb_egress_class=3
+htb_ingress_class=4
+
 # load modul for ifb
 # “numifbs=1” indicates 
 # that one virtual 
@@ -44,12 +47,18 @@ if [ "$1" = "enable" ]; then
     tc qdisc del dev $tin1 root
     tc qdisc del dev $tin1 root handle 1: htb
 
+    # handle all traffic
+    tc qdisc add dev $tin1 handle ffff: ingress
+    # Redirecto ingress $dev to egress $tin1
+    tc filter add dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
+
+
     # add tc egress
-    tc class add dev $dev parent 1: classid 1:$htb_class htb rate $rate_limit ceil $rate_ceil
-    tc filter add dev $dev parent 1: prio 0 protocol ip handle $htb_class fw flowid 1:$htb_class
+    tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit ceil $rate_ceil
+    tc filter add dev $dev parent 1: prio 0 protocol ip handle $htb_egress_class fw flowid 1:$htb_egress_class
     # add tc ingress
-    tc class add dev $tin1 parent 1: classid 1:$htb_class htb rate $rate_limit ceil $rate_ceil
-    tc filter add dev $tin1 parent 1: prio 0 protocol ip handle $htb_class fw flowid 1:$htb_class
+    tc class add dev $tin1 parent 1: classid 1:$htb_ingress_class htb rate $rate_limit ceil $rate_ceil
+    tc filter add dev $tin1 parent 1: prio 0 protocol ip handle $htb_ingress_class fw flowid 1:$htb_ingress_class
     
 
 
@@ -70,10 +79,10 @@ if [ "$1" = "enable" ]; then
 
     # after 10 megabyte a connection is considered a download
     # egress
-    iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_class
+    iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_egress_class
     iptables -t mangle -A OUTPUT -j RETURN
     # ingress
-    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_class
+    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
     iptables -t mangle -A INPUT -j RETURN
 
 elif [ "$1" = "disable" ]; then
