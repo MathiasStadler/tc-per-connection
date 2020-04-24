@@ -76,7 +76,7 @@ if [ "$1" = "enable" ]; then
     # egress
     iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m length --length 0:500 -j RETURN
     # ingress
-    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m length --length 0:500 -j RETURN
+    ## iptables -t mangle -A INPUT -p tcp --sport $ip_port -m length --length 0:500 -j RETURN
     
     # small packet connections: multi purpose (don't harm since not maxed out)
     # engress
