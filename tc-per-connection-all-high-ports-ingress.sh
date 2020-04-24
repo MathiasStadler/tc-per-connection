@@ -108,6 +108,11 @@ elif [ "$1" = "show" ]; then
     # iptables
     iptables -t mangle -vnL INPUT
     iptables -t mangle -vnL OUTPUT
+elif [ "$1" = "showtree" ]; then
+    # show tree
+    tc -s -g class show dev $dev
+    tc -s -g class show dev $tin1
+
 elif [ "$1" = "reset" ]; then
     tc qdisc del root dev $tin1
     tc qdisc del dev $tin1 ingress
