@@ -48,7 +48,6 @@ iperf -c <ip_of_another_server>
 # start test with paralel stream e.g. 2
 iperf -P2 -c <ip_of_another_server>
 
-
 # disable tc
 tc-per-connection-all-high-ports.sh disable
 
@@ -123,3 +122,12 @@ tc class show dev ifb0
 tc filter show dev ifb0
 iptables -t mangle -vnL INPUT
 iptables -t mangle -vnL OUTPUT
+
+
+
+## show tree of tc ruled
+- [from here](https://serverfault.com/questions/320619/traffic-shaping-tc-filter-attached-to-an-htb-class)
+
+```bash
+sudo tc -s -g class show dev enp3s0 
+```
