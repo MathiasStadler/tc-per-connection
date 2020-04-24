@@ -53,26 +53,47 @@ if [ "$1" = "enable" ]; then
     #iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_class
 
     # small packet is probably interactive or flow control
+    # egress
     iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m length --length 0:500 -j RETURN
-
+    # ingress
+    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m length --length 0:500 -j RETURN
+    
     # small packet connections: multi purpose (don't harm since not maxed out)
+    # engress
     iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes 0:250 --connbytes-dir both --connbytes-mode avgpkt -j RETURN
+    # ingress
+    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes 0:250 --connbytes-dir both --connbytes-mode avgpkt -j RETURN
+    
 
-    #after 10 megabyte a connection is considered a download
+    # after 10 megabyte a connection is considered a download
+    # egress
     iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_class
     iptables -t mangle -A OUTPUT -j RETURN
+    # ingress
+    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_class
+    iptables -t mangle -A INPUT -j RETURN
 
 elif [ "$1" = "disable" ]; then
     echo "disabling rate limits"
+    
+    # engress
     tc qdisc del dev $dev root > /dev/null 2>&1
+    # ingress
+    tc qdisc del dev $int1 root > /dev/null 2>&1
 
     iptables -t mangle -F
     iptables -t mangle -X
 
 elif [ "$1" = "show" ]; then
+    # egress
     tc qdisc show dev $dev
     tc class show dev $dev
     tc filter show dev $dev
+    # ingress
+    tc qdisc show dev $int1
+    tc class show dev $int1
+    tc filter show dev $int1
+    # iptables
     iptables -t mangle -vnL INPUT
     iptables -t mangle -vnL OUTPUT
 else
