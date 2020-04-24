@@ -24,21 +24,17 @@ modprobe ifb numifbs=1
 # set interface up
 ip link set dev $tin1 up
 
-# for save Clean interface tc rule
-tc qdisc del root dev $int1
-tc qdisc del dev $int1 ingress
-tc qdisc del dev $int1 root
-tc qdisc del dev $int1 root
-
-
+# root check
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root" 1>&2
     exit 1
 fi
 
+# list interfeces
 echo "Use egress interfaces $dev"
 echo "Use ingress interfaces $int1"
 
+# commands
 if [ "$1" = "enable" ]; then
     echo "enabling rate limits"
     # delete egress
@@ -103,6 +99,17 @@ elif [ "$1" = "show" ]; then
     # iptables
     iptables -t mangle -vnL INPUT
     iptables -t mangle -vnL OUTPUT
+elif [ "$1" = "reset" ]; then
+    tc qdisc del root dev $int1
+    tc qdisc del dev $int1 ingress
+    tc qdisc del dev $int1 root
+    tc qdisc del dev $int1 root
+
+    tc qdisc del root dev $dev
+    tc qdisc del dev $dev ingress
+    tc qdisc del dev $dev root
+    tc qdisc del dev $dev root
+
 else
     echo "invalid arg $1"
 fi
