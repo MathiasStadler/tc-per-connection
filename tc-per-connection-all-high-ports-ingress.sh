@@ -32,7 +32,7 @@ fi
 
 # list interfeces
 echo "Use egress interfaces $dev"
-echo "Use ingress interfaces $int1"
+echo "Use ingress interfaces $tin1"
 
 # commands
 if [ "$1" = "enable" ]; then
@@ -41,15 +41,15 @@ if [ "$1" = "enable" ]; then
     tc qdisc del dev $dev root > /dev/null 2>&1
     tc qdisc add dev $dev root handle 1: htb
     # delete ingress
-    tc qdisc del dev $int1 root
-    tc qdisc del dev $int1 root handle 1: htb
+    tc qdisc del dev $tin1 root
+    tc qdisc del dev $tin1 root handle 1: htb
 
     # add tc egress
     tc class add dev $dev parent 1: classid 1:$htb_class htb rate $rate_limit ceil $rate_ceil
     tc filter add dev $dev parent 1: prio 0 protocol ip handle $htb_class fw flowid 1:$htb_class
     # add tc ingress
-    tc class add dev $int1 parent 1: classid 1:$htb_class htb rate $rate_limit ceil $rate_ceil
-    tc filter add dev $int1 parent 1: prio 0 protocol ip handle $htb_class fw flowid 1:$htb_class
+    tc class add dev $tin1 parent 1: classid 1:$htb_class htb rate $rate_limit ceil $rate_ceil
+    tc filter add dev $tin1 parent 1: prio 0 protocol ip handle $htb_class fw flowid 1:$htb_class
     
 
 
@@ -82,7 +82,7 @@ elif [ "$1" = "disable" ]; then
     # engress
     tc qdisc del dev $dev root > /dev/null 2>&1
     # ingress
-    tc qdisc del dev $int1 root > /dev/null 2>&1
+    tc qdisc del dev $tin1 root > /dev/null 2>&1
 
     iptables -t mangle -F
     iptables -t mangle -X
@@ -93,17 +93,17 @@ elif [ "$1" = "show" ]; then
     tc class show dev $dev
     tc filter show dev $dev
     # ingress
-    tc qdisc show dev $int1
-    tc class show dev $int1
-    tc filter show dev $int1
+    tc qdisc show dev $tin1
+    tc class show dev $tin1
+    tc filter show dev $tin1
     # iptables
     iptables -t mangle -vnL INPUT
     iptables -t mangle -vnL OUTPUT
 elif [ "$1" = "reset" ]; then
-    tc qdisc del root dev $int1
-    tc qdisc del dev $int1 ingress
-    tc qdisc del dev $int1 root
-    tc qdisc del dev $int1 root
+    tc qdisc del root dev $tin1
+    tc qdisc del dev $tin1 ingress
+    tc qdisc del dev $tin1 root
+    tc qdisc del dev $tin1 root
 
     tc qdisc del root dev $dev
     tc qdisc del dev $dev ingress
