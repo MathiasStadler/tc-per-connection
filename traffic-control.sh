@@ -11,7 +11,7 @@
 # The limit for up/down is 20Mb (20480kbit), divide this bandwight for every host (in this case 80kbit)
 
 #check root
-if [[ $(whoami)` != "root" ]]; then
+if [[ $(whoami) != "root" ]]; then
   echo "WARNING: script must be executed with root privileges!"
   exit 1
 fi
