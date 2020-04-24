@@ -48,7 +48,7 @@ if [ "$1" = "enable" ]; then
     tc qdisc del dev $tin1 root handle 2: htb
 
     echo "tc qdisc add dev $dev"
-    tc qdisc add dev $dev root handle 1: htb
+    tc qdisc add dev $dev root handle 1: htb default 10
     ## echo "t c qdisc add dev $tin1"
     ## tc qdisc add dev $tin1 root handle 2: htb
     # handle all traffic
@@ -57,7 +57,9 @@ if [ "$1" = "enable" ]; then
     tc filter add dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
     # tc qdisc add
     echo "t c qdisc add dev $tin1"
-    tc qdisc add dev $tin1 root handle 2: htb
+    tc qdisc add dev $tin1 root handle 2: htb default 10
+    tc class add dev $tin1 parent 2: classid 2:1 htb rate 512kbit
+    tc class add dev $tin1 parent 2:1 classid 2:10 htb rate 512kbit
 
     echo "tc class add dev $dev"
     tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit ceil $rate_ceil
@@ -80,7 +82,7 @@ if [ "$1" = "enable" ]; then
     # engress
     iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes 0:250 --connbytes-dir both --connbytes-mode avgpkt -j RETURN
     # ingress
-    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes 0:250 --connbytes-dir both --connbytes-mode avgpkt -j RETURN
+    ## iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes 0:250 --connbytes-dir both --connbytes-mode avgpkt -j RETURN
     
 
     # after 10 megabyte a connection is considered a download
@@ -90,8 +92,8 @@ if [ "$1" = "enable" ]; then
     iptables -t mangle -A OUTPUT -j RETURN
     # ingress
     # iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
-    iptables -t mangle -A INPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
-    iptables -t mangle -A INPUT -j RETURN
+    ## iptables -t mangle -A INPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
+    ## iptables -t mangle -A INPUT -j RETURN
 
 elif [ "$1" = "disable" ]; then
     echo "disabling rate limits"
