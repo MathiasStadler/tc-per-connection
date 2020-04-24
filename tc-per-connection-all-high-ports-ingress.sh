@@ -45,7 +45,7 @@ if [ "$1" = "enable" ]; then
     tc qdisc add dev $dev root handle 1: htb
     # delete ingress
     tc qdisc del dev $tin1 root
-    tc qdisc del dev $tin1 root handle 1: htb
+    tc qdisc del dev $tin1 root handle 2: htb
 
     # handle all traffic
     tc qdisc add dev $dev handle ffff: ingress
@@ -57,8 +57,8 @@ if [ "$1" = "enable" ]; then
     tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit ceil $rate_ceil
     tc filter add dev $dev parent 1: prio 0 protocol ip handle $htb_egress_class fw flowid 1:$htb_egress_class
     # add tc ingress
-    tc class add dev $tin1 parent 1: classid 1:$htb_ingress_class htb rate $rate_limit ceil $rate_ceil
-    tc filter add dev $tin1 parent 1: prio 0 protocol ip handle $htb_ingress_class fw flowid 1:$htb_ingress_class
+    tc class add dev $tin1 parent 2: classid 1:$htb_ingress_class htb rate $rate_limit ceil $rate_ceil
+    tc filter add dev $tin1 parent 2: prio 0 protocol ip handle $htb_ingress_class fw flowid 1:$htb_ingress_class
     
 
 
