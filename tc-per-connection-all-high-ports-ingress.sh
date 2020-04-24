@@ -83,10 +83,12 @@ if [ "$1" = "enable" ]; then
 
     # after 10 megabyte a connection is considered a download
     # egress
-    iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_egress_class
+    # iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_egress_class
+    iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_egress_class
     iptables -t mangle -A OUTPUT -j RETURN
     # ingress
-    iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
+    # iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
+    iptables -t mangle -A INPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
     iptables -t mangle -A INPUT -j RETURN
 
 elif [ "$1" = "disable" ]; then
