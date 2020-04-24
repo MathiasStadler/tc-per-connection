@@ -57,16 +57,20 @@ if [ "$1" = "enable" ]; then
     tc filter add dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
     # tc qdisc add
     echo "t c qdisc add dev $tin1"
+    # https://linux.die.net/man/8/tc-htb
+    # default minor-id
+    # Unclassified traffic gets sent to the class with this minor-id.
     tc qdisc add dev $tin1 root handle 2: htb default 10
-    ## tc class add dev $tin1 parent 2: classid 2:1 htb rate 512kbit
-    ## tc class add dev $tin1 parent 2:1 classid 2:10 htb rate 512kbit
+    tc class add dev $tin1 parent 2: classid 2:1 htb rate $rate_limit
+    tc class add dev $tin1 parent 2:1 classid 2:10 htb rate $rate_limit
 
     echo "tc class add dev $dev"
-    tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit ceil $rate_ceil
+    tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit # ceil $rate_ceil
     tc filter add dev $dev parent 1: prio 0 protocol ip handle $htb_egress_class fw flowid 1:$htb_egress_class
-    echo "tc class add dev $tin1"
-    tc class add dev $tin1 parent 2: classid 2:$htb_ingress_class htb rate $rate_limit ceil $rate_ceil
-    tc filter add dev $tin1 parent 2: prio 0 protocol ip handle $htb_ingress_class fw flowid 2:$htb_ingress_class
+    # HINT: set-mark not work for ifb device
+    ## echo "tc class add dev $tin1"
+    ## tc class add dev $tin1 parent 2: classid 2:$htb_ingress_class htb rate $rate_limit ceil $rate_ceil
+    ## tc filter add dev $tin1 parent 2: prio 0 protocol ip handle $htb_ingress_class fw flowid 2:$htb_ingress_class
     
 
 
@@ -88,12 +92,14 @@ if [ "$1" = "enable" ]; then
     # after 10 megabyte a connection is considered a download
     # egress
     # iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_egress_class
+    
     iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_egress_class
     iptables -t mangle -A OUTPUT -j RETURN
     # ingress
-    # iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
-    iptables -t mangle -A PREROUTING -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
-    iptables -t mangle -A PREROUTING -j RETURN
+    # HINT: set-mark not work for ifb device
+    ## iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
+    ## iptables -t mangle -A PREROUTING -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
+    ## iptables -t mangle -A PREROUTING -j RETURN
 
 elif [ "$1" = "disable" ]; then
     echo "disabling rate limits"

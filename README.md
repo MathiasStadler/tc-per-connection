@@ -19,6 +19,10 @@ https://wiki.archlinux.org/index.php/Advanced_traffic_control
 @TODO source missing
 # ingress
 https://serverfault.com/questions/350023/tc-ingress-policing-and-ifb-mirroring
+# ifb
+https://unix.stackexchange.com/questions/288959/how-is-the-ifb-device-positioned-in-the-packet-flow-of-the-linux-kernel
+# wondershapper
+https://github.com/magnific0/wondershaper
 ```
 
 ## test
