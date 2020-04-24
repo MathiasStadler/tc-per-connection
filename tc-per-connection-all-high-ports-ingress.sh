@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -echo
+
 # settings
 dev=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
 ip_port=49152:65535
