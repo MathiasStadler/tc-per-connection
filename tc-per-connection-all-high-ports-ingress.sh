@@ -14,6 +14,11 @@ max_byte=50000
 tin1="ifb0"
 
 # load modul for ifb
+# “numifbs=1” indicates 
+# that one virtual 
+# communication ports are created.
+# from here
+# https://choreonoid.org/en/manuals/latest/trafficcontrol/index.html
 modprobe ifb numifbs=1
 
 # set interface up
