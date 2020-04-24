@@ -17,6 +17,8 @@ git config --global credential.helper 'cache --timeout=3600'
 ```txt
 https://wiki.archlinux.org/index.php/Advanced_traffic_control
 @TODO source missing
+# ingress
+https://serverfault.com/questions/350023/tc-ingress-policing-and-ifb-mirroring
 ```
 
 ## test
