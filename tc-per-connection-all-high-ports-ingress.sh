@@ -48,7 +48,7 @@ if [ "$1" = "enable" ]; then
     tc qdisc del dev $tin1 root handle 1: htb
 
     # handle all traffic
-    tc qdisc add dev $tin1 handle ffff: ingress
+    tc qdisc add dev $dev handle ffff: ingress
     # Redirecto ingress $dev to egress $tin1
     tc filter add dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
 
