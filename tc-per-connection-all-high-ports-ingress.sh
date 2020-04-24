@@ -5,7 +5,7 @@
 # settings
 dev=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
 ip_port=1025:65535
-rate_limit=1024‚kbit
+rate_limit=1024kbit
 rate_ceil=1024kbit
 # @TODO old check to delete  htb_class=10
 # max_byte=10485760
