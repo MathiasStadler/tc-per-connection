@@ -4,10 +4,10 @@
 
 # settings
 dev=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
-ip_port=49152:65535
+ip_port=1025:65535
 rate_limit=512kbit
 rate_ceil=1024kbit
-htb_class=10
+# @TODO old check to delete  htb_class=10
 # max_byte=10485760
 max_byte=50000
 # Interface virtual for incomming traffic
