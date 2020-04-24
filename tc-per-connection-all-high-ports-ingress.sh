@@ -47,7 +47,8 @@ if [ "$1" = "enable" ]; then
     tc qdisc del dev $tin1 root
     tc qdisc del dev $tin1 root handle 2: htb
 
-    ### tc qdisc add dev $dev root handle 1: htb
+    echo "tc qdisc add dev $dev"
+    tc qdisc add dev $dev root handle 1: htb
     # handle all traffic
     tc qdisc add dev $dev handle ffff: ingress
     # Redirecto ingress $dev to egress $tin1
