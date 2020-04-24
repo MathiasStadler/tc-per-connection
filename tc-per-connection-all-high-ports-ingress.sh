@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+# set -e
 
 # settings
 dev=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
