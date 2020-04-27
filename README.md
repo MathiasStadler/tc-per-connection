@@ -127,3 +127,7 @@ iptables -t mangle -vnL OUTPUT
 ```bash
 sudo tc -s -g class show dev enp3s0 
 ```
+
+##
+
+https://serverfault.com/questions/389328/difference-between-htb-rate-and-ceil-values

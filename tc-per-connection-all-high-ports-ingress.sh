@@ -9,7 +9,7 @@ ip_port=1025:65535
 rate_egress_limit=3072kbit
 # rate_ingress_limit=1024kbit
 # rate_ingress_limit=512kbit
-rate_ingress_limit=64kbit
+rate_ingress_limit=256kbit
 
 # @ TODO not used rate_ceil=1024kbit
 # @TODO old check to delete  htb_class=10
@@ -104,6 +104,25 @@ if [ "$1" = "enable" ]; then
     ## iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes $max_byte: --connbytes-dir both --connbytes-mode bytes -j MARK --set-mark $htb_ingress_class
     ## iptables -t mangle -A PREROUTING -p tcp --sport $ip_port -j MARK --set-mark $htb_ingress_class
     ## iptables -t mangle -A PREROUTING -j RETURN
+
+elif [ "$1" = "replace" ]; then
+    # Redirec to ingress $dev to egress $tin1
+    tc filter replace dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
+    
+    # tc qdisc add
+    echo "tc qdisc replace dev $tin1"
+    
+    # https://linux.die.net/man/8/tc-htb
+    # default minor-id
+    # Unclassified traffic gets sent to the class with this minor-id.
+    tc qdisc replace dev $tin1 root handle 2: htb default 10
+    tc class replace dev $tin1 parent 2: classid 2:1 htb rate $rate_ingress_limit
+    tc class replace dev $tin1 parent 2:1 classid 2:10 htb rate $rate_ingress_limit
+
+    echo "tc class add dev $dev"
+    tc class replace dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_egress_limit # ceil $rate_ceil
+    tc filter replace dev $dev parent 1: prio 0 protocol ip handle $htb_egress_class fw flowid 1:$htb_egress_class
+    
 
 elif [ "$1" = "disable" ]; then
     echo "disabling rate limits"
