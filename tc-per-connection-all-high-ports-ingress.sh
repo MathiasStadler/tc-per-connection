@@ -5,8 +5,11 @@
 # settings
 dev=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
 ip_port=1025:65535
-rate_limit=1024kbit
-rate_ceil=1024kbit
+# rate_limit=1024kbit
+rate_egress_limit=3072kbit
+rate_ingress_limit=1024kbit
+
+# @ TODO not used rate_ceil=1024kbit
 # @TODO old check to delete  htb_class=10
 # max_byte=10485760
 max_byte=50000
@@ -49,30 +52,30 @@ if [ "$1" = "enable" ]; then
 
     echo "tc qdisc add dev $dev"
     tc qdisc add dev $dev root handle 1: htb default 10
-    ## echo "t c qdisc add dev $tin1"
-    ## tc qdisc add dev $tin1 root handle 2: htb
+    
     # handle all traffic
     tc qdisc add dev $dev handle ffff: ingress
-    # Redirecto ingress $dev to egress $tin1
+    
+    # Redirec to ingress $dev to egress $tin1
     tc filter add dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
+    
     # tc qdisc add
-    echo "t c qdisc add dev $tin1"
+    echo "tc qdisc add dev $tin1"
+    
     # https://linux.die.net/man/8/tc-htb
     # default minor-id
     # Unclassified traffic gets sent to the class with this minor-id.
     tc qdisc add dev $tin1 root handle 2: htb default 10
-    tc class add dev $tin1 parent 2: classid 2:1 htb rate $rate_limit
-    tc class add dev $tin1 parent 2:1 classid 2:10 htb rate $rate_limit
+    tc class add dev $tin1 parent 2: classid 2:1 htb rate $rate_ingress_limit
+    tc class add dev $tin1 parent 2:1 classid 2:10 htb rate $rate_ingress_limit
 
     echo "tc class add dev $dev"
-    tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_limit # ceil $rate_ceil
+    tc class add dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_egress_limit # ceil $rate_ceil
     tc filter add dev $dev parent 1: prio 0 protocol ip handle $htb_egress_class fw flowid 1:$htb_egress_class
     # HINT: set-mark not work for ifb device
     ## echo "tc class add dev $tin1"
     ## tc class add dev $tin1 parent 2: classid 2:$htb_ingress_class htb rate $rate_limit ceil $rate_ceil
     ## tc filter add dev $tin1 parent 2: prio 0 protocol ip handle $htb_ingress_class fw flowid 2:$htb_ingress_class
-    
-
 
     #iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -j MARK --set-mark $htb_class
 
@@ -87,7 +90,6 @@ if [ "$1" = "enable" ]; then
     iptables -t mangle -A OUTPUT -p tcp --sport $ip_port -m connbytes --connbytes 0:250 --connbytes-dir both --connbytes-mode avgpkt -j RETURN
     # ingress
     ## iptables -t mangle -A INPUT -p tcp --sport $ip_port -m connbytes --connbytes 0:250 --connbytes-dir both --connbytes-mode avgpkt -j RETURN
-    
 
     # after 10 megabyte a connection is considered a download
     # egress
