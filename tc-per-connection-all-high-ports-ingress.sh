@@ -124,10 +124,10 @@ elif [ "$1" = "replace" ]; then
     # https://linux.die.net/man/8/tc-htb
     # default minor-id
     # Unclassified traffic gets sent to the class with this minor-id.
-    tc qdisc replace dev $tin1 root handle 2: htb default 10
-    tc class replace dev $tin1 parent 2: classid 2:1 htb rate $rate_ingress_limit
-    tc class replace dev $tin1 parent 2:1 classid 2:10 htb rate $rate_ingress_limit
-
+    
+    ## todo not need tc qdisc replace dev $tin1 root handle 2: htb default 10
+    tc class replace dev $tin1 parent 2: classid 2:1 htb rate $2
+    tc class replace dev $tin1 parent 2:1 classid 2:10 htb rate $2
     echo "tc class add dev $dev"
     tc class replace dev $dev parent 1: classid 1:$htb_egress_class htb rate $rate_egress_limit # ceil $rate_ceil
     tc filter replace dev $dev parent 1: prio 0 protocol ip handle $htb_egress_class fw flowid 1:$htb_egress_class
