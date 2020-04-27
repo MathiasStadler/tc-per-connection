@@ -106,6 +106,15 @@ if [ "$1" = "enable" ]; then
     ## iptables -t mangle -A PREROUTING -j RETURN
 
 elif [ "$1" = "replace" ]; then
+
+    if [ -z "$2" ]
+        then
+            echo "\$2 bitrate missing e.g. 1024kbit"
+            echo "exit script"
+            exit
+        else
+            echo "limit set to $2" 
+        fi
     # Redirec to ingress $dev to egress $tin1
     tc filter replace dev $dev parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev $tin1
     
