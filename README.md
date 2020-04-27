@@ -9,9 +9,6 @@ git config --global user.EMAIL "email@mathias-stadler.de"
 # https://help.github.com/en/github/using-git/caching-your-github-password-in-git
 git config --global credential.helper 'cache --timeout=3600'
 ```
-
-
-
 ## source
 
 ```txt
@@ -24,7 +21,6 @@ https://unix.stackexchange.com/questions/288959/how-is-the-ifb-device-positioned
 # wondershapper
 https://github.com/magnific0/wondershaper
 ```
-
 ## test
 
 ```bash
@@ -35,7 +31,6 @@ https://github.com/magnific0/wondershaper
 
 # another server start iperf3
 iperf -s
-
 
 # on test server
 # PLEASE AWARE: all iprules are overwriten/delete at this test
@@ -56,7 +51,6 @@ iperf -P2 -c <ip_of_another_server>
 tc-per-connection-all-high-ports.sh disable
 
 ```
-
 
 ## ingress tc manual
 
@@ -95,7 +89,6 @@ tc class add dev ifb0 parent 3: classid 3:3 htb rate ${DOWNLINK}kbit
 tc class add dev ifb0 parent 3:3 classid 3:30 htb rate 400kbit ceil ${DOWNLINK}kbit
 tc class add dev ifb0 parent 3:3 classid 3:33 htb rate 1400kbit ceil ${DOWNLINK}kbit
 
-
 # Packets marked with "3" on IFB flow through class 3:33
 tc filter add dev ifb0 parent 3:0 protocol ip handle 3 fw flowid 3:33
 
@@ -116,7 +109,6 @@ tc filter add dev $EXTDEV parent ffff: protocol ip \
         flowid ffff:1
 
 exit 0
-
 ```
 
 ```bash
@@ -126,10 +118,10 @@ tc class show dev ifb0
 tc filter show dev ifb0
 iptables -t mangle -vnL INPUT
 iptables -t mangle -vnL OUTPUT
-
-
+```
 
 ## show tree of tc ruled
+
 - [from here](https://serverfault.com/questions/320619/traffic-shaping-tc-filter-attached-to-an-htb-class)
 
 ```bash
