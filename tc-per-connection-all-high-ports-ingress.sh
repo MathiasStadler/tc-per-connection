@@ -202,4 +202,12 @@ elif [ "$1" = "reset" ]; then
 
 else
     echo "invalid arg $1"
+	echo "enable" 
+	echo "replace_ingress" 
+	echo "replace_egress" 
+	echo "disable" 
+	echo "show"
+	echo "showtree" 
+	echo "reset" 
+
 fi
